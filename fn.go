@@ -9,8 +9,9 @@
 package dohproxy
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/markkurossi/cicd/api/auth"
 	"github.com/markkurossi/go-libs/fn"
@@ -30,35 +31,40 @@ var (
 	httpClient *http.Client
 )
 
+func Fatalf(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
+	os.Exit(1)
+}
+
 func init() {
 	mux = http.NewServeMux()
 	mux.HandleFunc("/dns-query", DNSQuery)
 
 	id, err := fn.GetProjectID()
 	if err != nil {
-		log.Fatalf("fn.GetProjectID: %s\n", err)
+		Fatalf("fn.GetProjectID: %s\n", err)
 	}
 	projectID = id
 
 	store, err = auth.NewClientStore()
 	if err != nil {
-		log.Fatalf("NewClientStore: %s\n", err)
+		Fatalf("NewClientStore: %s\n", err)
 	}
 	tenants, err := store.TenantByName(TENANT)
 	if err != nil {
-		log.Fatalf("store.TenantByName: %s\n", err)
+		Fatalf("store.TenantByName: %s\n", err)
 	}
 	if len(tenants) == 0 {
-		log.Fatalf("Tenant %s not found\n", TENANT)
+		Fatalf("Tenant %s not found\n", TENANT)
 	}
 	tenant = tenants[0]
 
 	assets, err := store.Asset(auth.ASSET_AUTH_PUBKEY)
 	if err != nil {
-		log.Fatalf("store.Asset(%s)\n", auth.ASSET_AUTH_PUBKEY)
+		Fatalf("store.Asset(%s)\n", auth.ASSET_AUTH_PUBKEY)
 	}
 	if len(assets) == 0 {
-		log.Fatalf("No auth public key\n")
+		Fatalf("No auth public key\n")
 	}
 	authPubkey = ed25519.PublicKey(assets[0].Data)
 
