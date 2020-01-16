@@ -1,7 +1,7 @@
 //
 // fn.go
 //
-// Copyright (c) 2019 Markku Rossi
+// Copyright (c) 2020 Markku Rossi
 //
 // All rights reserved.
 //
@@ -19,6 +19,7 @@ import (
 )
 
 const (
+	REALM  = "DNS-over-HTTPS Proxy"
 	TENANT = "DNS-over-HTTPS-proxy"
 )
 
@@ -31,13 +32,9 @@ var (
 	httpClient *http.Client
 )
 
-func Fatalf(format string, a ...interface{}) {
-	fmt.Printf(format, a...)
-	os.Exit(1)
-}
-
 func init() {
 	mux = http.NewServeMux()
+	mux.HandleFunc("/certificate", Certificate)
 	mux.HandleFunc("/dns-query", DNSQuery)
 
 	id, err := fn.GetProjectID()
@@ -73,4 +70,13 @@ func init() {
 
 func DoHProxy(w http.ResponseWriter, r *http.Request) {
 	mux.ServeHTTP(w, r)
+}
+
+func tokenVerifier(message, sig []byte) bool {
+	return ed25519.Verify(authPubkey, message, sig)
+}
+
+func Fatalf(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
+	os.Exit(1)
 }
