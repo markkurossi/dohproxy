@@ -61,11 +61,10 @@ func SAs(w http.ResponseWriter, r *http.Request) {
 			Errorf(w, http.StatusBadRequest, "error parsing envelope: %s", err)
 			return
 		}
-		payload, err := env.Decrypt()
+		payload, keyID, err := env.Decrypt()
 		if err != nil {
 			if err == ErrorInvalidKeyPair {
-				Errorf(w, http.StatusFailedDependency,
-					"encryption key mismatch")
+				Errorf(w, http.StatusFailedDependency, keyID)
 			} else {
 				Errorf(w, http.StatusBadRequest,
 					"error decrypting request: %s", err)

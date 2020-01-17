@@ -31,15 +31,19 @@ type Envelope struct {
 	KeyID string `json:"key_id"`
 }
 
-func (env *Envelope) Decrypt() ([]byte, error) {
+func (env *Envelope) Decrypt() ([]byte, string, error) {
 	kp, err := GetEphemeralKeyPair()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if kp.cert.SerialNumber.String() != env.KeyID {
-		return nil, ErrorInvalidKeyPair
+		return nil, kp.cert.SerialNumber.String(), ErrorInvalidKeyPair
 	}
-	return rsa.DecryptOAEP(sha256.New(), nil, kp.priv, env.Data, nil)
+	data, err := rsa.DecryptOAEP(sha256.New(), nil, kp.priv, env.Data, nil)
+	if err != nil {
+		return nil, "", err
+	}
+	return data, "", nil
 }
 
 func Encrypt(key, data []byte) ([]byte, error) {
