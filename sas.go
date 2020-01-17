@@ -31,6 +31,10 @@ var (
 	sas  = make(map[string]*SA)
 )
 
+type CreateSA struct {
+	SAs []*Envelope
+}
+
 type NewSARequest struct {
 	ID  string `json:"id"`
 	Key []byte `json:"key"`
@@ -55,20 +59,32 @@ func SAs(w http.ResponseWriter, r *http.Request) {
 	matches := reSA.FindStringSubmatch(r.URL.Path)
 	if matches != nil {
 		// Create new SA.
-		env := new(Envelope)
-		err = json.Unmarshal(data, env)
+		create := new(CreateSA)
+		err = json.Unmarshal(data, create)
 		if err != nil {
-			Errorf(w, http.StatusBadRequest, "error parsing envelope: %s", err)
+			Errorf(w, http.StatusBadRequest, "error parsing request: %s", err)
 			return
 		}
-		payload, keyID, err := env.Decrypt()
+
+		kp, err := GetEphemeralKeyPair()
 		if err != nil {
-			if err == ErrorInvalidKeyPair {
-				Errorf(w, http.StatusFailedDependency, keyID)
-			} else {
-				Errorf(w, http.StatusBadRequest,
-					"error decrypting request: %s", err)
+			Errorf(w, http.StatusInternalServerError,
+				"couldn't get keypair: %s", err)
+			return
+		}
+
+		// Try to decode one of the envelopes.
+		var payload []byte
+		for _, env := range create.SAs {
+			payload, err = env.Decrypt(kp)
+			if err == nil {
+				break
 			}
+		}
+		if payload == nil {
+			w.Header().Set("Content-Type", "application/x-509-user-cert")
+			w.WriteHeader(http.StatusFailedDependency)
+			w.Write(kp.cert.Raw)
 			return
 		}
 		req := new(NewSARequest)
@@ -78,7 +94,10 @@ func SAs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		addSA(req.ID, req.Key)
+
+		w.Header().Set("Content-Type", "application/x-509-user-cert")
 		w.WriteHeader(http.StatusCreated)
+		w.Write(kp.cert.Raw)
 		return
 	}
 	matches = reDNSQuery.FindStringSubmatch(r.URL.Path)
