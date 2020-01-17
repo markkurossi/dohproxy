@@ -27,9 +27,9 @@ type KeyPair struct {
 }
 
 var (
-	m       = new(sync.Mutex)
-	keyPair *KeyPair
-	subject = pkix.Name{
+	keyPairM = new(sync.Mutex)
+	keyPair  *KeyPair
+	subject  = pkix.Name{
 		Organization: []string{"markkurossi.com"},
 		CommonName:   REALM,
 	}
@@ -42,8 +42,8 @@ var (
 )
 
 func GetEphemeralKeyPair() (*KeyPair, error) {
-	m.Lock()
-	defer m.Unlock()
+	keyPairM.Lock()
+	defer keyPairM.Unlock()
 
 	now := time.Now()
 
@@ -90,6 +90,10 @@ func Certificate(w http.ResponseWriter, r *http.Request) {
 	if token == nil {
 		return
 	}
+	if r.Method != "GET" {
+		Errorf(w, http.StatusMethodNotAllowed, "%s", r.Method)
+		return
+	}
 
 	keyPair, err := GetEphemeralKeyPair()
 	if err != nil {
@@ -98,5 +102,6 @@ func Certificate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/x-x509-user-cert")
 	w.Write(keyPair.cert.Raw)
 }

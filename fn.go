@@ -36,6 +36,7 @@ func init() {
 	mux = http.NewServeMux()
 	mux.HandleFunc("/certificate", Certificate)
 	mux.HandleFunc("/dns-query", DNSQuery)
+	mux.HandleFunc("/sas/", SAs)
 
 	id, err := fn.GetProjectID()
 	if err != nil {
@@ -74,6 +75,10 @@ func DoHProxy(w http.ResponseWriter, r *http.Request) {
 
 func tokenVerifier(message, sig []byte) bool {
 	return ed25519.Verify(authPubkey, message, sig)
+}
+
+func Errorf(w http.ResponseWriter, code int, format string, a ...interface{}) {
+	http.Error(w, fmt.Sprintf(format, a...), code)
 }
 
 func Fatalf(format string, a ...interface{}) {
