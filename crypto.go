@@ -14,11 +14,16 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 )
 
 const (
 	NONCE_LEN = 12
+)
+
+var (
+	ErrorInvalidKeyPair = errors.New("invalid key pair")
 )
 
 type Envelope struct {
@@ -32,7 +37,7 @@ func (env *Envelope) Decrypt() ([]byte, error) {
 		return nil, err
 	}
 	if kp.cert.SerialNumber.String() != env.KeyID {
-		return nil, fmt.Errorf("invalid key pair")
+		return nil, ErrorInvalidKeyPair
 	}
 	return rsa.DecryptOAEP(sha256.New(), nil, kp.priv, env.Data, nil)
 }
