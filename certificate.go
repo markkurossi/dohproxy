@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/markkurossi/cicd/api/auth"
+	"github.com/markkurossi/cloudsdk/api/auth"
 )
 
 type KeyPair struct {

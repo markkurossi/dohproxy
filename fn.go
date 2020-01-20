@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/markkurossi/cicd/api/auth"
+	"github.com/markkurossi/cloudsdk/api/auth"
 	"github.com/markkurossi/go-libs/fn"
 	"golang.org/x/crypto/ed25519"
 )

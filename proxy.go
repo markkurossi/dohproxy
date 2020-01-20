@@ -15,7 +15,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/markkurossi/cicd/api/auth"
+	"github.com/markkurossi/cloudsdk/api/auth"
 )
 
 type ProxyRequest struct {
