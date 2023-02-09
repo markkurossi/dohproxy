@@ -1,7 +1,7 @@
 //
 // certificate.go
 //
-// Copyright (c) 2020 Markku Rossi
+// Copyright (c) 2020-2023 Markku Rossi
 //
 // All rights reserved.
 //
@@ -21,6 +21,7 @@ import (
 	"github.com/markkurossi/cloudsdk/api/auth"
 )
 
+// KeyPair defines a private key and certificate key pair.
 type KeyPair struct {
 	priv *rsa.PrivateKey
 	cert *x509.Certificate
@@ -41,6 +42,7 @@ var (
 	}
 )
 
+// GetEphemeralKeyPair returns an ephemeral key pair.
 func GetEphemeralKeyPair() (*KeyPair, error) {
 	keyPairM.Lock()
 	defer keyPairM.Unlock()
@@ -85,6 +87,7 @@ func GetEphemeralKeyPair() (*KeyPair, error) {
 	return keyPair, nil
 }
 
+// Certificate returns the proxy's authentication certificate.
 func Certificate(w http.ResponseWriter, r *http.Request) {
 	token := auth.Authorize(w, r, REALM, tokenVerifier, tenant)
 	if token == nil {

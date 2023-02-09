@@ -1,7 +1,7 @@
 //
 // proxy.go
 //
-// Copyright (c) 2020 Markku Rossi
+// Copyright (c) 2020-2023 Markku Rossi
 //
 // All rights reserved.
 //
@@ -18,11 +18,13 @@ import (
 	"github.com/markkurossi/cloudsdk/api/auth"
 )
 
+// ProxyRequest defines the attributes for the DNS proxy request.
 type ProxyRequest struct {
 	Data   []byte `json:"data"`
 	Server string `json:"server"`
 }
 
+// DNSQuery implements handler for DNS queries.
 func DNSQuery(w http.ResponseWriter, r *http.Request) {
 	token := auth.Authorize(w, r, REALM, tokenVerifier, tenant)
 	if token == nil {

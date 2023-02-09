@@ -1,7 +1,7 @@
 //
 // sas.go
 //
-// Copyright (c) 2020 Markku Rossi
+// Copyright (c) 2020-2023 Markku Rossi
 //
 // All rights reserved.
 //
@@ -18,6 +18,7 @@ import (
 	"github.com/markkurossi/cloudsdk/api/auth"
 )
 
+// SA defines a security association.
 type SA struct {
 	ID  string
 	Key []byte
@@ -31,15 +32,20 @@ var (
 	sas  = make(map[string]*SA)
 )
 
+// CreateSA defines the attibutes for the security association
+// creation request.
 type CreateSA struct {
 	SAs []*Envelope
 }
 
+// NewSARequest defines the attributes of the new security association.
 type NewSARequest struct {
 	ID  string `json:"id"`
 	Key []byte `json:"key"`
 }
 
+// SAs handles security association creation and encrypted DNS
+// queries.
 func SAs(w http.ResponseWriter, r *http.Request) {
 	token := auth.Authorize(w, r, REALM, tokenVerifier, tenant)
 	if token == nil {

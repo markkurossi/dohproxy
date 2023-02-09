@@ -1,7 +1,7 @@
 //
 // fn.go
 //
-// Copyright (c) 2020 Markku Rossi
+// Copyright (c) 2020-2023 Markku Rossi
 //
 // All rights reserved.
 //
@@ -19,7 +19,9 @@ import (
 )
 
 const (
-	REALM  = "DNS-over-HTTPS Proxy"
+	// REALM defines the OAuth2 authentication realm.
+	REALM = "DNS-over-HTTPS Proxy"
+	// TENANT defines the OAuth2 authentication tenant.
 	TENANT = "DNS-over-HTTPS-proxy"
 )
 
@@ -69,6 +71,7 @@ func init() {
 	httpClient = new(http.Client)
 }
 
+// DoHProxy implements the Google Cloud Functions entrypoint.
 func DoHProxy(w http.ResponseWriter, r *http.Request) {
 	mux.ServeHTTP(w, r)
 }
@@ -77,10 +80,12 @@ func tokenVerifier(message, sig []byte) bool {
 	return ed25519.Verify(authPubkey, message, sig)
 }
 
+// Errorf returns an HTTP error.
 func Errorf(w http.ResponseWriter, code int, format string, a ...interface{}) {
 	http.Error(w, fmt.Sprintf(format, a...), code)
 }
 
+// Fatalf prints a fatal error and exits the program.
 func Fatalf(format string, a ...interface{}) {
 	fmt.Printf(format, a...)
 	os.Exit(1)
