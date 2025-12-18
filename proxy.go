@@ -1,7 +1,7 @@
 //
 // proxy.go
 //
-// Copyright (c) 2020-2023 Markku Rossi
+// Copyright (c) 2020-2025 Markku Rossi
 //
 // All rights reserved.
 //
@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/markkurossi/cloudsdk/api/auth"
@@ -34,7 +34,7 @@ func DNSQuery(w http.ResponseWriter, r *http.Request) {
 		Errorf(w, http.StatusBadRequest, "Invalid method %s", r.Method)
 		return
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		Errorf(w, http.StatusInternalServerError,
 			"Error reading request body: %s", err)
@@ -73,7 +73,7 @@ func doh(w http.ResponseWriter, data []byte) ([]byte, bool) {
 	}
 	defer dnsResp.Body.Close()
 
-	dnsRespData, err := ioutil.ReadAll(dnsResp.Body)
+	dnsRespData, err := io.ReadAll(dnsResp.Body)
 	if err != nil {
 		Errorf(w, http.StatusBadGateway,
 			"error reading server response: %s", err)

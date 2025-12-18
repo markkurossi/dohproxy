@@ -1,7 +1,7 @@
 //
 // sas.go
 //
-// Copyright (c) 2020-2023 Markku Rossi
+// Copyright (c) 2020-2025 Markku Rossi
 //
 // All rights reserved.
 //
@@ -10,7 +10,7 @@ package dohproxy
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"sync"
@@ -55,7 +55,7 @@ func SAs(w http.ResponseWriter, r *http.Request) {
 		Errorf(w, http.StatusMethodNotAllowed, "%s", r.Method)
 		return
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		Errorf(w, http.StatusInternalServerError,
 			"error reading request body: %s", err)

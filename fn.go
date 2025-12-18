@@ -1,11 +1,12 @@
 //
 // fn.go
 //
-// Copyright (c) 2020-2023 Markku Rossi
+// Copyright (c) 2020-2025 Markku Rossi
 //
 // All rights reserved.
 //
 
+// Package dohproxy implements a DNS over HTTPS (DOH) Proxy.
 package dohproxy
 
 import (
